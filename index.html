@@ -1,221 +1,155 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Newest Shadows</title>
+<style>
+  :root{
+    --ink:#050405; --panel:#0c090a; --ash:#cfc8c2; --dim:#8d847f;
+    --red:#c4283a; --line:rgba(255,255,255,.08);
+    --serif:Georgia,'Times New Roman',serif; --sans:Arial,Helvetica,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:transparent}
+  body{display:flex;justify-content:center;padding:6px;font-family:var(--sans);color:var(--ash)}
+  .card{
+    width:100%;max-width:360px;background:var(--ink);
+    border:1px solid rgba(196,40,58,.28);border-radius:4px;
+    box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;position:relative;
+  }
+  .card::before{
+    content:"";position:absolute;inset:0 0 auto 0;height:140px;pointer-events:none;
+    background:radial-gradient(ellipse 100% 100% at 12% 0%,rgba(158,27,42,.45),rgba(5,4,5,0) 100%);
+  }
+  .head{position:relative;display:flex;align-items:baseline;gap:12px;padding:22px 22px 0}
+  .kanji{font-size:28px;line-height:1;color:var(--red)}
+  .title{font-family:var(--serif);font-style:italic;font-size:22px;color:#f3ede8}
+  .rule{flex:1;height:1px;align-self:center;background:linear-gradient(90deg,rgba(196,40,58,.7),rgba(196,40,58,0))}
+  .sub{position:relative;padding:8px 22px 14px;font-size:12px;color:var(--dim)}
+  #members{position:relative;min-height:120px;padding:0 22px}
+  .state{padding:34px 0;text-align:center;font-family:var(--serif);font-style:italic;color:var(--dim);font-size:15px}
+  .row{
+    display:flex;align-items:center;gap:14px;padding:12px 8px;margin:0 -8px;
+    border-bottom:1px solid var(--line);text-decoration:none;color:inherit;
+    border-radius:3px;opacity:0;transform:translateY(8px);
+    transition:opacity .4s ease,transform .4s ease,background .2s ease;
+  }
+  .row.in{opacity:1;transform:none}
+  .row:hover,.row:focus-visible{background:rgba(196,40,58,.1);outline:none}
+  .row:focus-visible{box-shadow:inset 0 0 0 1px var(--red)}
+  .avatar{
+    width:46px;height:46px;flex:none;object-fit:cover;border-radius:3px;background:#1a1416;
+    border:1px solid rgba(196,40,58,.5);
+  }
+  .who{flex:1;min-width:0}
+  .name{font-family:var(--serif);font-size:16px;color:#f3ede8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta{margin-top:3px;font-size:11px;color:var(--dim);letter-spacing:.3px}
+  .tag{flex:none;font-size:10px;letter-spacing:1px;color:#fff;background:var(--red);padding:3px 7px;border-radius:2px}
+  .foot{position:relative;text-align:center;font-family:var(--serif);font-style:italic;font-size:12px;color:var(--dim);padding:18px 0 20px}
+  @media (prefers-reduced-motion:reduce){.row{transition:none;opacity:1;transform:none}}
+</style>
 </head>
+<body>
 
-<body style="
-margin:0;
-padding:0;
-background:#0a0a0d;
-font-family:'Times New Roman', serif;
-display:flex;
-justify-content:center;
-">
-
-<div id="card" style="
-width:300px;
-margin:0 auto;
-padding:20px;
-border-radius:25px;
-background:
-radial-gradient(circle at 20% 0%, rgba(255,255,255,.05), transparent 40%),
-radial-gradient(circle at 100% 100%, rgba(255,255,255,.04), transparent 50%),
-linear-gradient(180deg,#1a1a1f,#0a0a0d 80%);
-box-shadow:
-0 25px 60px rgba(0,0,0,.95),
-inset 0 0 50px rgba(255,255,255,.03);
-color:#f5f5f5;
-position:relative;
-overflow:hidden;
-">
-
-<!-- Ambient Glow -->
-<div style="
-position:absolute;
-top:-40%;
-left:-40%;
-width:180%;
-height:180%;
-background:radial-gradient(circle, rgba(255,255,255,.05), transparent 60%);
-animation:ambient 8s ease-in-out infinite alternate;
-pointer-events:none;
-"></div>
-
-<!-- Title -->
-<div style="
-text-align:center;
-font-size:18px;
-font-weight:800;
-letter-spacing:2px;
-text-shadow:0 0 18px rgba(255,255,255,.3);
-">
-NEWEST SHADOWS
-</div>
-
-<div style="
-text-align:center;
-font-size:9px;
-opacity:.55;
-letter-spacing:1.5px;
-margin-bottom:18px;
-">
-ENTER THE ARENA
-</div>
-
-<!-- Members -->
-<div id="members" style="min-height:100px;font-family:Arial, sans-serif;">
-Loading...
-</div>
-
-<!-- Footer -->
-<div style="
-text-align:center;
-font-size:8px;
-opacity:.35;
-margin-top:16px;
-letter-spacing:2px;
-">
-THE ART OF BLACK AND WHITE
-</div>
-
-</div>
+<main class="card" aria-labelledby="t">
+  <div class="head">
+    <span class="kanji" aria-hidden="true">影</span>
+    <span class="title" id="t">Newest shadows</span>
+    <span class="rule"></span>
+  </div>
+  <div class="sub">The latest players to join ShiroKuro</div>
+  <div id="members" aria-live="polite"><div class="state">Summoning…</div></div>
+  <div class="foot">The art of black and white</div>
+</main>
 
 <script>
+const CLUB = "group-4852db60f92f4078270890ba84275675";
+const FALLBACK_AVATAR = "https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/default-pawn.png";
+const box = document.getElementById("members");
+let firstLoad = true;
 
-function timeAgo(timestamp){
-  const seconds = Math.floor((Date.now()/1000) - timestamp);
-  const intervals = [
-    {label:"year",seconds:31536000},
-    {label:"month",seconds:2592000},
-    {label:"day",seconds:86400},
-    {label:"hour",seconds:3600},
-    {label:"minute",seconds:60}
-  ];
-  for(const i of intervals){
-    const count = Math.floor(seconds / i.seconds);
-    if(count >= 1){
-      return count + " " + i.label + (count>1?"s":"") + " ago";
-    }
+function timeAgo(ts){
+  const s = Math.floor(Date.now()/1000 - ts);
+  const units = [["year",31536000],["month",2592000],["day",86400],["hour",3600],["minute",60]];
+  for (const [label, secs] of units){
+    const n = Math.floor(s / secs);
+    if (n >= 1) return n + " " + label + (n > 1 ? "s" : "") + " ago";
   }
-  return "just joined";
+  return "just now";
+}
+
+function makeRow(m, profile, index){
+  const a = document.createElement("a");
+  a.className = "row";
+  a.href = "https://www.chess.com/member/" + encodeURIComponent(m.username);
+  a.target = "_blank";
+  a.rel = "noopener";
+
+  const img = document.createElement("img");
+  img.className = "avatar";
+  img.alt = "";
+  img.src = (profile && profile.avatar) || FALLBACK_AVATAR;
+  img.onerror = () => { img.onerror = null; img.src = FALLBACK_AVATAR; };
+
+  const who = document.createElement("div");
+  who.className = "who";
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = "@" + m.username;
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  const rapid = profile && profile.chess_rapid && profile.chess_rapid.last ? profile.chess_rapid.last.rating : "unrated";
+  meta.textContent = "Rapid " + rapid + " · Joined " + timeAgo(m.joined);
+  who.append(name, meta);
+
+  a.append(img, who);
+  if (index === 0){
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = "NEW";
+    a.append(tag);
+  }
+  setTimeout(() => a.classList.add("in"), index * 90);
+  return a;
 }
 
 async function loadMembers(){
-
-  const container = document.getElementById("members");
-  container.innerHTML = "Summoning...";
-
+  if (firstLoad) box.innerHTML = '<div class="state">Summoning…</div>';
   try{
-    const res = await fetch("https://api.chess.com/pub/club/group-4852db60f92f4078270890ba84275675/members");
+    const res = await fetch("https://api.chess.com/pub/club/" + CLUB + "/members");
+    if (!res.ok) throw new Error("members " + res.status);
     const data = await res.json();
 
-    const members = [...(data.weekly || []), ...(data.monthly || [])];
-    members.sort((a,b)=> b.joined - a.joined);
-    const top5 = members.slice(0,5);
+    const all = [...(data.weekly || []), ...(data.monthly || []), ...(data.all_time || [])];
+    const seen = new Set();
+    const newest = all
+      .filter(m => !seen.has(m.username) && seen.add(m.username))
+      .sort((a, b) => b.joined - a.joined)
+      .slice(0, 5);
 
-    container.innerHTML = "";
+    if (!newest.length){
+      box.innerHTML = '<div class="state">No new shadows yet.</div>';
+      return;
+    }
 
-    const profiles = await Promise.all(
-      top5.map(m => 
-        fetch("https://api.chess.com/pub/player/" + m.username)
-        .then(r => r.json())
-      )
-    );
+    const profiles = await Promise.all(newest.map(m =>
+      fetch("https://api.chess.com/pub/player/" + encodeURIComponent(m.username))
+        .then(r => r.ok ? r.json() : null).catch(() => null)
+    ));
 
-    top5.forEach((m, i) => {
-
-      const pj = profiles[i];
-      const avatar = pj.avatar || "https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/default-pawn.png";
-      const rapid = pj.chess_rapid?.last?.rating || "—";
-
-      const row = document.createElement("div");
-
-      row.style.cssText = `
-        display:flex;
-        align-items:center;
-        gap:12px;
-        padding:12px;
-        border-radius:18px;
-        background:rgba(255,255,255,.06);
-        backdrop-filter:blur(16px);
-        box-shadow:
-          inset 0 0 20px rgba(255,255,255,.05),
-          0 12px 28px rgba(0,0,0,.9);
-        margin-bottom:12px;
-        opacity:0;
-        transform:translateY(10px);
-        transition:.35s ease;
-        cursor:pointer;
-      `;
-
-      setTimeout(()=>{
-        row.style.opacity="1";
-        row.style.transform="translateY(0)";
-      }, i*100);
-
-      row.onmouseover = () => {
-        row.style.transform="translateY(-4px) scale(1.02)";
-      };
-
-      row.onmouseout = () => {
-        row.style.transform="translateY(0) scale(1)";
-      };
-
-      row.innerHTML = `
-        <a href="https://www.chess.com/member/${m.username}" 
-           target="_blank"
-           style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;width:100%;">
-
-          <img src="${avatar}" 
-               style="
-               width:46px;
-               height:46px;
-               border-radius:50%;
-               box-shadow:0 0 14px rgba(255,255,255,.25);
-               ">
-
-          <div style="flex:1;">
-            <div style="
-              font-weight:700;
-              font-size:13px;
-              letter-spacing:.5px;
-            ">
-              @${m.username}
-            </div>
-
-            <div style="
-              font-size:9px;
-              opacity:.65;
-              letter-spacing:.5px;
-              margin-top:2px;
-            ">
-              Rapid ${rapid} · Joined ${timeAgo(m.joined)}
-            </div>
-          </div>
-        </a>
-      `;
-
-      container.appendChild(row);
-    });
-
+    const frag = document.createDocumentFragment();
+    newest.forEach((m, i) => frag.append(makeRow(m, profiles[i], firstLoad ? i : 0)));
+    box.replaceChildren(frag);
+    box.querySelectorAll(".row").forEach(r => r.classList.add("in"));
+    firstLoad = false;
   }catch(e){
-    container.innerHTML = "Failed to summon shadows.";
+    if (firstLoad) box.innerHTML = '<div class="state">The shadows are out of reach. Try again soon.</div>';
   }
 }
 
 loadMembers();
 setInterval(loadMembers, 300000);
-
 </script>
-
-<style>
-@keyframes ambient{
-  from { transform: translateY(0px); opacity:.5; }
-  to   { transform: translateY(35px); opacity:.8; }
-}
-</style>
-
 </body>
 </html>
